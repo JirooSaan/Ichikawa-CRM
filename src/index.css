@@ -1,0 +1,1438 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap');
+
+/* =========================================================
+   ICHIKAWA SOLUTIONS LTD.
+   Premium CRM Design System
+   ========================================================= */
+
+:root {
+  font-family: 'Inter', sans-serif;
+
+  color: #e8edf5;
+  background: #050914;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --bg: #050914;
+  --bg-soft: #080e1c;
+  --panel: #0b1222;
+  --panel-light: #10192b;
+
+  --border: rgba(148, 163, 184, 0.14);
+  --border-light: rgba(148, 163, 184, 0.22);
+
+  --text: #f1f5f9;
+  --text-soft: #a9b6c9;
+  --text-muted: #71809a;
+
+  --accent: #19b9dc;
+  --accent-light: #55d7f2;
+  --accent-dark: #0788a8;
+
+  --success: #35d18a;
+  --warning: #f5b942;
+  --danger: #ff6262;
+
+  --shadow:
+    0 20px 60px rgba(0, 0, 0, 0.35);
+
+  --radius: 16px;
+}
+
+/* =========================================================
+   RESET
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background: var(--bg);
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+
+  background:
+    radial-gradient(
+      circle at 75% 10%,
+      rgba(25, 185, 220, 0.06),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 10% 90%,
+      rgba(25, 185, 220, 0.035),
+      transparent 28%
+    ),
+    var(--bg);
+
+  color: var(--text);
+
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* =========================================================
+   TYPOGRAPHY
+   ========================================================= */
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  color: var(--text);
+}
+
+h1,
+h2 {
+  font-family: 'Playfair Display', serif;
+  letter-spacing: -0.02em;
+}
+
+p {
+  margin: 0;
+  color: var(--text-soft);
+}
+
+/* =========================================================
+   APP LOADING
+   ========================================================= */
+
+.app-loading {
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--bg);
+
+  color: var(--text-soft);
+
+  font-size: 14px;
+  letter-spacing: 0.04em;
+}
+
+/* =========================================================
+   AUTHENTICATION PAGE
+   ========================================================= */
+
+.auth-page {
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 40px 20px;
+
+  background:
+    radial-gradient(
+      circle at 50% 20%,
+      rgba(25, 185, 220, 0.09),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at 15% 80%,
+      rgba(15, 75, 110, 0.12),
+      transparent 30%
+    ),
+    #050914;
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 430px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* =========================================================
+   CUSTOM AUTH BRAND
+   =========================================================
+   Keep this if you decide to use your own brand above Clerk.
+   ========================================================= */
+
+.auth-brand {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.auth-brand h1 {
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.auth-brand p {
+  margin-top: 4px;
+
+  color: var(--accent);
+
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.brand-icon {
+  width: 48px;
+  height: 48px;
+
+  margin: 0 auto 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      145deg,
+      var(--accent-light),
+      var(--accent-dark)
+    );
+
+  color: #021018;
+
+  font-size: 18px;
+  font-weight: 800;
+
+  box-shadow:
+    0 10px 35px rgba(25, 185, 220, 0.2);
+}
+
+/* =========================================================
+   CLERK
+   ========================================================= */
+
+/*
+   These selectors provide a subtle visual fallback around
+   Clerk's authentication component.
+*/
+
+.auth-container .cl-card {
+  border: 1px solid var(--border-light) !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(16, 25, 43, 0.98),
+      rgba(8, 14, 28, 0.98)
+    ) !important;
+
+  box-shadow:
+    0 25px 80px rgba(0, 0, 0, 0.45) !important;
+
+  border-radius: 20px !important;
+}
+
+.auth-container .cl-headerTitle {
+  font-family: 'Playfair Display', serif !important;
+}
+
+.auth-container .cl-headerSubtitle {
+  color: var(--text-soft) !important;
+}
+
+.auth-container .cl-formFieldLabel {
+  color: var(--text-soft) !important;
+}
+
+.auth-container .cl-formFieldInput {
+  background: rgba(5, 9, 20, 0.75) !important;
+  border-color: var(--border-light) !important;
+  color: var(--text) !important;
+}
+
+.auth-container .cl-formFieldInput:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 1px var(--accent) !important;
+}
+
+.auth-container .cl-formButtonPrimary {
+  background: linear-gradient(
+    135deg,
+    var(--accent),
+    var(--accent-dark)
+  ) !important;
+
+  color: #031017 !important;
+
+  font-weight: 700 !important;
+
+  box-shadow:
+    0 10px 30px rgba(25, 185, 220, 0.18) !important;
+}
+
+.auth-container .cl-formButtonPrimary:hover {
+  background: linear-gradient(
+    135deg,
+    var(--accent-light),
+    var(--accent)
+  ) !important;
+}
+
+.auth-container .cl-footerActionText {
+  color: var(--text-soft) !important;
+}
+
+.auth-container .cl-footerActionLink {
+  color: var(--accent-light) !important;
+}
+
+/* =========================================================
+   MAIN CRM APPLICATION
+   ========================================================= */
+
+.crm-app {
+  min-height: 100vh;
+
+  display: flex;
+
+  background:
+    radial-gradient(
+      circle at 75% 0%,
+      rgba(25, 185, 220, 0.035),
+      transparent 28%
+    ),
+    var(--bg);
+}
+
+/* =========================================================
+   SIDEBAR BRAND
+   ========================================================= */
+
+.brand {
+  height: 76px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.brand-icon {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  background: linear-gradient(
+    135deg,
+    #18c8e8,
+    #0796b5
+  );
+
+  color: #06131c;
+  font-size: 15px;
+  font-weight: 900;
+
+  box-shadow: 0 8px 24px rgba(18, 190, 220, 0.18);
+}
+
+.brand > div:last-child {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.brand-name {
+  color: #f8fafc;
+
+  /* smaller so it stays inside sidebar */
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 15px;
+  font-weight: 700;
+
+  letter-spacing: 0.02em;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.brand-subtitle {
+  margin-top: 3px;
+
+  color: #35c9e8;
+
+  font-family: Inter, sans-serif;
+  font-size: 8px;
+  font-weight: 700;
+
+  letter-spacing: 0.22em;
+} 
+/* =========================================================
+   BRAND
+   ========================================================= */
+
+.brand {
+  min-height: 76px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 0 20px;
+
+  border-bottom: 1px solid var(--border);
+}
+
+.brand .brand-icon {
+  width: 38px;
+  height: 38px;
+
+  margin: 0;
+
+  border-radius: 11px;
+
+  font-size: 14px;
+}
+
+.brand-name {
+  color: var(--text);
+
+  font-family: 'Playfair Display', serif;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  letter-spacing: 0.02em;
+
+  white-space: nowrap;
+}
+
+.brand-subtitle {
+  margin-top: 2px;
+
+  color: var(--accent);
+
+  font-size: 8px;
+  font-weight: 600;
+
+  letter-spacing: 0.2em;
+
+  text-transform: uppercase;
+}
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
+.navigation {
+  flex: 1;
+
+  padding: 24px 12px;
+}
+
+.nav-section {
+  padding: 0 12px;
+  margin: 0 0 9px;
+
+  color: #61718a;
+
+  font-size: 9px;
+  font-weight: 700;
+
+  letter-spacing: 0.18em;
+
+  text-transform: uppercase;
+}
+
+.nav-section:not(:first-child) {
+  margin-top: 25px;
+}
+
+.nav-item {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 10px 13px;
+
+  margin-bottom: 4px;
+
+  border: 1px solid transparent;
+  border-radius: 9px;
+
+  background: transparent;
+
+  color: var(--text-soft);
+
+  text-align: left;
+
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.nav-item span {
+  width: 18px;
+
+  color: #7890aa;
+
+  text-align: center;
+
+  transition: color 160ms ease;
+}
+
+.nav-item:hover {
+  background: rgba(25, 185, 220, 0.055);
+
+  color: var(--text);
+
+  border-color: rgba(25, 185, 220, 0.1);
+
+  transform: translateX(2px);
+}
+
+.nav-item:hover span {
+  color: var(--accent);
+}
+
+.nav-item.active {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(25, 185, 220, 0.17),
+      rgba(25, 185, 220, 0.06)
+    );
+
+  color: var(--accent-light);
+
+  border-color: rgba(25, 185, 220, 0.16);
+}
+
+.nav-item.active span {
+  color: var(--accent);
+}
+
+/* =========================================================
+   SIDEBAR FOOTER
+   ========================================================= */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+
+  width: 220px;
+  min-width: 220px;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  background: #080f1f;
+  border-right: 1px solid rgba(148, 163, 184, 0.12);
+
+  z-index: 100;
+}
+.sidebar-footer {
+  min-height: 52px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 0 18px;
+
+  border-top: 1px solid var(--border);
+
+  color: var(--text-muted);
+
+  font-size: 10px;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+
+  border-radius: 50%;
+
+  background: var(--success);
+
+  box-shadow:
+    0 0 10px rgba(53, 209, 138, 0.5);
+}
+
+/* =========================================================
+   MAIN CONTENT
+   ========================================================= */
+
+.main-content {
+  margin-left: 220px;
+
+  width: calc(100% - 220px);
+  min-height: 100vh;
+
+  padding: 0;
+}
+
+/* =========================================================
+   TOP BAR
+   ========================================================= */
+
+.topbar {
+  min-height: 76px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 30px;
+
+  border-bottom: 1px solid var(--border);
+
+  background: rgba(5, 9, 20, 0.82);
+
+  backdrop-filter: blur(16px);
+
+  position: sticky;
+  top: 0;
+
+  z-index: 10;
+}
+
+.topbar h1 {
+  font-size: 21px;
+  font-weight: 600;
+}
+
+.topbar p {
+  margin-top: 1px;
+
+  color: var(--text-muted);
+
+  font-size: 10px;
+}
+
+/* =========================================================
+   USER AREA
+   ========================================================= */
+
+.user-area {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+
+  align-items: flex-end;
+}
+
+.user-info strong {
+  color: var(--text);
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.user-info span {
+  max-width: 200px;
+
+  overflow: hidden;
+
+  color: var(--text-muted);
+
+  font-size: 8px;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   DASHBOARD
+   ========================================================= */
+
+.dashboard {
+  width: min(1180px, calc(100% - 60px));
+
+  margin: 0 auto;
+
+  padding: 36px 0 60px;
+}
+
+/* =========================================================
+   WELCOME CARD
+   ========================================================= */
+
+.welcome-card {
+  min-height: 140px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 30px;
+
+  border: 1px solid rgba(25, 185, 220, 0.2);
+
+  border-radius: 18px;
+
+  background:
+    radial-gradient(
+      circle at 80% 20%,
+      rgba(25, 185, 220, 0.12),
+      transparent 35%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(12, 25, 42, 0.96),
+      rgba(8, 18, 32, 0.96)
+    );
+
+  box-shadow:
+    var(--shadow);
+}
+
+.eyebrow {
+  display: inline-block;
+
+  margin-bottom: 7px;
+
+  color: var(--accent);
+
+  font-size: 9px;
+  font-weight: 700;
+
+  letter-spacing: 0.18em;
+
+  text-transform: uppercase;
+}
+
+.welcome-card h2 {
+  font-size: 25px;
+  font-weight: 600;
+}
+
+.welcome-card p {
+  margin-top: 5px;
+
+  font-size: 12px;
+}
+
+.connection-status {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  color: var(--success);
+
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.connection-status span {
+  width: 6px;
+  height: 6px;
+
+  border-radius: 50%;
+
+  background: var(--success);
+
+  box-shadow:
+    0 0 10px rgba(53, 209, 138, 0.6);
+}
+
+/* =========================================================
+   STATS
+   ========================================================= */
+
+.stats-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 14px;
+
+  margin-top: 16px;
+}
+
+.stat-card {
+  min-height: 125px;
+
+  display: flex;
+  flex-direction: column;
+
+  justify-content: center;
+
+  padding: 22px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 15px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(12, 20, 37, 0.96),
+      rgba(8, 14, 27, 0.96)
+    );
+
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+
+  border-color: rgba(25, 185, 220, 0.2);
+
+  box-shadow:
+    0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.stat-card > span {
+  color: var(--text-soft);
+
+  font-size: 10px;
+}
+
+.stat-card strong {
+  margin-top: 7px;
+
+  color: var(--text);
+
+  font-family: 'Playfair Display', serif;
+
+  font-size: 30px;
+  font-weight: 600;
+}
+
+.stat-card small {
+  margin-top: 2px;
+
+  color: var(--text-muted);
+
+  font-size: 9px;
+}
+
+/* =========================================================
+   INTEGRATION CARD
+   ========================================================= */
+
+.integration-card {
+  min-height: 128px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 30px;
+
+  margin-top: 16px;
+
+  padding: 28px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(12, 19, 35, 0.98),
+      rgba(8, 14, 27, 0.98)
+    );
+}
+
+.integration-card h2 {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.integration-card p {
+  max-width: 650px;
+
+  margin-top: 5px;
+
+  font-size: 11px;
+}
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.primary-button {
+  flex-shrink: 0;
+
+  padding: 12px 20px;
+
+  border: 0;
+  border-radius: 9px;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--accent),
+      var(--accent-dark)
+    );
+
+  color: #6b7d86;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  box-shadow:
+    0 10px 25px rgba(25, 185, 220, 0.16);
+
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.primary-button:hover {
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 14px 30px rgba(25, 185, 220, 0.25);
+}
+
+/* =========================================================
+   SYSTEM STATUS
+   ========================================================= */
+
+.system-card {
+  margin-top: 16px;
+
+  padding: 26px 28px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(11, 18, 33, 0.98),
+      rgba(7, 13, 25, 0.98)
+    );
+}
+
+.system-card h2 {
+  margin-bottom: 10px;
+
+  font-size: 16px;
+
+  font-weight: 600;
+}
+
+.status-row {
+  min-height: 47px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border-top: 1px solid var(--border);
+
+  color: var(--text-soft);
+
+  font-size: 10px;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  color: var(--warning);
+
+  font-size: 10px;
+}
+
+.status.connected {
+  color: var(--success);
+}
+
+.status span {
+  width: 6px;
+  height: 6px;
+
+  border-radius: 50%;
+
+  background: var(--warning);
+}
+
+.status.connected span {
+  background: var(--success);
+
+  box-shadow:
+    0 0 8px rgba(53, 209, 138, 0.5);
+}
+
+/* =========================================================
+   PREMIUM SCROLLBAR
+   ========================================================= */
+
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: #a9aeb9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1c2b40;
+
+  border-radius: 20px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #29405b;
+}
+
+/* =========================================================
+   SELECTION
+   ========================================================= */
+
+::selection {
+  background: rgba(25, 185, 220, 0.25);
+
+  color: white;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+  .sidebar {
+    width: 200px;
+  }
+
+  .main-content {
+    width: calc(100% - 200px);
+
+    margin-left: 200px;
+  }
+
+  .stats-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard {
+    width: min(100% - 36px, 1180px);
+  }
+}
+
+@media (max-width: 680px) {
+  .sidebar {
+    width: 68px;
+  }
+
+  .brand {
+    justify-content: center;
+
+    padding: 0;
+  }
+
+  .brand > div:last-child,
+  .navigation .nav-section,
+  .nav-item:not(.active)::after,
+  .nav-item {
+    font-size: 0;
+  }
+
+  .brand-name,
+  .brand-subtitle {
+    display: none;
+  }
+
+  .nav-item {
+    justify-content: center;
+
+    padding: 12px 0;
+  }
+
+  .nav-item span {
+    font-size: 14px;
+  }
+
+  .sidebar-footer {
+    justify-content: center;
+
+    padding: 0;
+  }
+
+  .sidebar-footer {
+    font-size: 0;
+  }
+
+  .main-content {
+    width: calc(100% - 68px);
+
+    margin-left: 68px;
+  }
+
+  .topbar {
+    padding: 0 18px;
+  }
+
+  .user-info {
+    display: none;
+  }
+
+  .dashboard {
+    width: calc(100% - 28px);
+
+    padding-top: 22px;
+  }
+
+  .welcome-card {
+    align-items: flex-start;
+    flex-direction: column;
+
+    gap: 20px;
+
+    padding: 22px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .integration-card {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .primary-button {
+    width: 100%;
+  }
+}
+/* =========================================================
+   CLERK LOGIN - LIGHT TEXT
+   ========================================================= */
+
+.auth-container .cl-card,
+.auth-container .cl-card * {
+  color: #f8fafc;
+}
+
+/* Clerk heading */
+.auth-container .cl-headerTitle {
+  color: #ffffff !important;
+  font-family: 'Playfair Display', serif !important;
+  font-weight: 600 !important;
+}
+
+/* Clerk subtitle */
+.auth-container .cl-headerSubtitle {
+  color: #b8c4d6 !important;
+}
+
+/* Form labels */
+.auth-container .cl-formFieldLabel {
+  color: #e5edf7 !important;
+}
+
+/* Forgot password */
+.auth-container .cl-formFieldAction {
+  color: #55d7f2 !important;
+}
+
+/* Input text */
+.auth-container .cl-formFieldInput {
+  color: #111827 !important;
+}
+
+/* Input placeholder */
+.auth-container .cl-formFieldInput::placeholder {
+  color: #7c8798 !important;
+}
+
+/* Footer text */
+.auth-container .cl-footerActionText {
+  color: #a9b6c9 !important;
+}
+
+/* Sign up link */
+.auth-container .cl-footerActionLink {
+  color: #55d7f2 !important;
+}
+
+/* Divider text */
+.auth-container .cl-dividerText {
+  color: #94a3b8 !important;
+}
+
+/* Social login buttons */
+.auth-container .cl-socialButtonsBlockButton {
+  color: #f8fafc !important;
+  background: #111a2c !important;
+  border-color: rgba(148, 163, 184, 0.2) !important;
+}
+
+/* Social login button text */
+.auth-container .cl-socialButtonsBlockButtonText {
+  color: #f8fafc !important;
+}
+
+/* "Last used" badge */
+.auth-container .cl-badge {
+  color: #334155 !important;
+  background: #e2e8f0 !important;
+}
+
+/* Clerk links */
+.auth-container .cl-formFieldAction,
+.auth-container .cl-footerActionLink,
+.auth-container a {
+  color: #55d7f2 !important;
+}
+
+/* Primary Continue button */
+.auth-container .cl-formButtonPrimary {
+  color: #031017 !important;
+  background: linear-gradient(
+    135deg,
+    #55d7f2,
+    #0788a8
+  ) !important;
+}
+/* =========================
+   DEALS
+========================= */
+/* =========================
+   DEALS TABLE
+========================= */
+
+.deals-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 12px;
+}
+
+.deals-table {
+  width: 100%;
+  min-width: 950px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.deals-table th,
+.deals-table td {
+  padding: 16px 18px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.deals-table th {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.deals-table td {
+  color: #d7deea;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Column widths */
+
+.deals-table th:nth-child(1),
+.deals-table td:nth-child(1) {
+  width: 24%;
+}
+
+.deals-table th:nth-child(2),
+.deals-table td:nth-child(2) {
+  width: 22%;
+}
+
+.deals-table th:nth-child(3),
+.deals-table td:nth-child(3) {
+  width: 23%;
+}
+
+.deals-table th:nth-child(4),
+.deals-table td:nth-child(4) {
+  width: 15%;
+}
+
+.deals-table th:nth-child(5),
+.deals-table td:nth-child(5) {
+  width: 16%;
+}
+
+
+/* =========================
+   DEAL INFORMATION
+========================= */
+
+.deal-name {
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 5px;
+
+  overflow-wrap: anywhere;
+}
+
+.deal-id {
+  display: block;
+  margin-top: 5px;
+
+  color: #7f91ad;
+  font-size: 12px;
+}
+
+
+/* =========================
+   CONTACT / LEAD
+========================= */
+
+.deal-contact-name {
+  display: block;
+
+  color: #ffffff;
+  font-weight: 700;
+
+  margin-bottom: 3px;
+}
+
+.deal-contact-email {
+  display: block;
+
+  color: #8ea2bf;
+  font-size: 12px;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+
+/* =========================
+   COMPANY
+========================= */
+
+.deal-company-name {
+  display: block;
+
+  color: #ffffff;
+  font-weight: 700;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.deal-company-domain {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #8ea2bf;
+  font-size: 12px;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+
+/* =========================
+   AMOUNT
+========================= */
+
+.deal-amount {
+  color: #ffffff;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+
+/* =========================
+   DEAL STAGE
+========================= */
+
+.deal-stage {
+  display: inline-flex;
+  align-items: center;
+
+  max-width: 100%;
+
+  padding: 6px 10px;
+
+  border-radius: 8px;
+
+  background: rgba(9, 198, 223, 0.08);
+  border: 1px solid rgba(9, 198, 223, 0.15);
+
+  color: #9edbe5;
+
+  font-size: 12px;
+  line-height: 1.4;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+/* Fix View Pipeline button text */
+.welcome-card .primary-button {
+  color: #061116 !important;
+  -webkit-text-fill-color: #061116 !important;
+  background: #18c4e5 !important;
+  border-color: #18c4e5 !important;
+  font-weight: 700 !important;
+  opacity: 1 !important;
+}
+
+.welcome-card .primary-button:hover {
+  color: #061116 !important;
+  -webkit-text-fill-color: #061116 !important;
+  background: #2bd0eb !important;
+  border-color: #2bd0eb !important;
+}
