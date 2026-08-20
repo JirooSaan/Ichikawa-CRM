@@ -2,6 +2,18 @@ import { useEffect, useMemo, useState } from 'react';
 import { useAuth, useUser, UserButton } from '@clerk/react';
 import Deals from './Deals';
 import './App.css';
+import './Dashboard.css';
+
+const PanelHeading = ({ title, subtitle }) => {
+  return (
+    <div className="panel-heading">
+      <div>
+        <h2>{title}</h2>
+        {subtitle && <p>{subtitle}</p>}
+      </div>
+    </div>
+  );
+};
 
 const API_BASE = 'http://localhost:5000';
 
@@ -144,7 +156,14 @@ function App() {
 }
 
 function Dashboard({ name, onNavigate }) {
-  const [stats, setStats] = useState({ contacts: null, companies: null, deals: null, pipeline: null, won: null, open: null });
+  const [stats, setStats] = useState({
+    contacts: null,
+    companies: null,
+    deals: null,
+    pipeline: null,
+    won: null,
+    open: null,
+  });
   const [recentDeals, setRecentDeals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -156,9 +175,10 @@ function Dashboard({ name, onNavigate }) {
 
     try {
       const [contactsRes, companiesRes, dealsRes] = await Promise.all([
-        fetch(`${API_BASE}/api/hubspot/contacts`),
-        fetch(`${API_BASE}/api/hubspot/companies`),
-        fetch(`${API_BASE}/api/hubspot/deals-with-contacts`),
+        fetch('http://localhost:5000/api/hubspot/contacts'),
+        fetch('http://localhost:5000/api/hubspot/companies'),
+        fetch('http://localhost:5000/api/hubspot/deals-with-contacts')
+
       ]);
 
       if (!contactsRes.ok) failures.push('contacts');
@@ -170,9 +190,18 @@ function Dashboard({ name, onNavigate }) {
       const deals = dealsRes.ok ? await dealsRes.json() : { results: [] };
       const results = Array.isArray(deals.results) ? deals.results : [];
 
-      const won = results.filter((deal) => /won|closedwon/i.test(deal.stage || '')).reduce((sum, deal) => sum + Number(deal.amount || 0), 0);
-      const open = results.filter((deal) => !/won|lost|closed/i.test(deal.stage || '')).length;
-      const pipeline = results.reduce((sum, deal) => sum + Number(deal.amount || 0), 0);
+      const won = results
+        .filter((deal) => /won|closedwon/i.test(deal.stage || ''))
+        .reduce((sum, deal) => sum + Number(deal.amount || 0), 0);
+
+      const open = results.filter(
+        (deal) => !/won|lost|closed/i.test(deal.stage || '')
+      ).length;
+
+      const pipeline = results.reduce(
+        (sum, deal) => sum + Number(deal.amount || 0),
+        0
+      );
 
       setStats({
         contacts: Array.isArray(contacts.results) ? contacts.results.length : 0,
@@ -182,9 +211,12 @@ function Dashboard({ name, onNavigate }) {
         won,
         open,
       });
+
       setRecentDeals(results.slice(0, 5));
 
-      if (failures.length) setError(`Unable to load: ${failures.join(', ')}`);
+      if (failures.length) {
+        setError(`Unable to load: ${failures.join(', ')}`);
+      }
     } catch (err) {
       console.error('Dashboard error:', err);
       setError(err.message || 'Unable to load dashboard data');
@@ -193,83 +225,178 @@ function Dashboard({ name, onNavigate }) {
     }
   };
 
-  useEffect(() => { loadStats(); }, []);
+  useEffect(() => {
+    loadStats();
+  }, []);
 
-  const money = (value) => new Intl.NumberFormat('en-US', {
-    style: 'currency', currency: 'USD', maximumFractionDigits: 0,
-  }).format(Number(value || 0));
+  const money = (value) =>
+    new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      maximumFractionDigits: 0,
+    }).format(Number(value || 0));
 
-  const initials = name.split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase();
+  const firstName = name.split(' ')[0] || 'there';
+
+  const stageData = useMemo(() => {
+    const map = new Map();
+
+    recentDeals.forEach((deal) => {
+      const stage = formatStage(deal.stage);
+      const current = map.get(stage) || { count: 0, amount: 0 };
+      current.count += 1;
+      current.amount += Number(deal.amount || 0);
+      map.set(stage, current);
+    });
+
+    return Array.from(map.entries()).slice(0, 5);
+  }, [recentDeals]);
 
   return (
-    <section className="page dashboard-page">
-      <div className="page-heading">
+    <section className="page overview-page">
+      <div className="overview-heading">
         <div>
-          <span className="eyebrow">OVERVIEW</span>
-          <h1>Good to see you, {name.split(' ')[0]}</h1>
+          <span className="overview-eyebrow">OVERVIEW</span>
+          <h1>Good to see you, {firstName}</h1>
           <p>Monitor your sales pipeline and customer activity at a glance.</p>
         </div>
-        <div className="heading-actions">
-          <button className="secondary-button" onClick={loadStats}>Refresh</button>
-          <button className="primary-button" onClick={() => onNavigate('deals')}>View pipeline</button>
+
+        <div className="overview-heading-actions">
+          <button
+            className="overview-button overview-button-ghost"
+            type="button"
+            onClick={loadStats}
+            disabled={loading}
+          >
+            {loading ? 'Refreshing...' : 'Refresh'}
+          </button>
+
+          <button
+            className="overview-button overview-button-primary"
+            type="button"
+            onClick={() => onNavigate('deals')}
+          >
+            View pipeline →
+          </button>
         </div>
       </div>
 
       {error && (
-        <div className="alert-card">
-          <div><strong>Some data could not be loaded</strong><span>{error}</span></div>
-          <button className="secondary-button" onClick={loadStats}>Retry</button>
+        <div className="overview-alert">
+          <div>
+            <strong>Some data could not be loaded</strong>
+            <span>{error}</span>
+          </div>
+          <button type="button" onClick={loadStats}>Retry</button>
         </div>
       )}
 
-      <div className="kpi-grid">
-        <KpiCard label="Pipeline value" value={loading ? '—' : money(stats.pipeline)} meta="Total active deal value" accent />
-        <KpiCard label="Open deals" value={loading ? '—' : stats.open} meta="Sales opportunities" />
-        <KpiCard label="Won revenue" value={loading ? '—' : money(stats.won)} meta="Closed won deals" positive />
-        <KpiCard label="Customers" value={loading ? '—' : stats.contacts} meta={`${stats.companies ?? '—'} companies`} />
+      <div className="overview-kpis">
+        <OverviewKpi label="Pipeline value" value={loading ? '—' : money(stats.pipeline)} detail="Total deal value" accent />
+        <OverviewKpi label="Open deals" value={loading ? '—' : stats.open} detail="Sales opportunities" />
+        <OverviewKpi label="Won revenue" value={loading ? '—' : money(stats.won)} detail="Closed won deals" positive />
+        <OverviewKpi label="Customers" value={loading ? '—' : stats.contacts} detail={`${stats.companies ?? '—'} companies`} />
       </div>
 
-      <div className="dashboard-grid">
-        <section className="panel pipeline-panel">
-          <PanelHeading title="Sales pipeline" subtitle="Current opportunity distribution" action="View deals" onAction={() => onNavigate('deals')} />
-          <PipelineSnapshot deals={recentDeals} money={money} />
+      <div className="overview-main-grid">
+        <section className="overview-panel overview-pipeline-panel">
+          <OverviewPanelHeading
+            title="Sales pipeline"
+            subtitle="Current opportunity distribution"
+            action="View deals"
+            onAction={() => onNavigate('deals')}
+          />
+
+          {stageData.length ? (
+            <div className="overview-stage-list">
+              {stageData.map(([stage, data]) => (
+                <div className="overview-stage-row" key={stage}>
+                  <div className="overview-stage-left">
+                    <span className="overview-stage-dot" />
+                    <div>
+                      <strong>{stage}</strong>
+                      <span>{data.count} deal{data.count === 1 ? '' : 's'}</span>
+                    </div>
+                  </div>
+                  <strong>{money(data.amount)}</strong>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="overview-empty">
+              {loading ? 'Loading pipeline...' : 'Pipeline data will appear here.'}
+            </div>
+          )}
         </section>
 
-        <section className="panel activity-panel">
-          <PanelHeading title="Workspace" subtitle="Your CRM at a glance" />
-          <div className="workspace-stats">
-            <MetricRow label="Contacts" value={loading ? '—' : stats.contacts} onClick={() => onNavigate('contacts')} />
-            <MetricRow label="Companies" value={loading ? '—' : stats.companies} onClick={() => onNavigate('companies')} />
-            <MetricRow label="Deals" value={loading ? '—' : stats.deals} onClick={() => onNavigate('deals')} />
-            <MetricRow label="HubSpot" value="Connected" status />
+        <section className="overview-panel overview-workspace-panel">
+          <OverviewPanelHeading title="Workspace" subtitle="Your CRM at a glance" />
+
+          <div className="overview-metrics">
+            <OverviewMetric label="Contacts" value={loading ? '—' : stats.contacts} onClick={() => onNavigate('contacts')} />
+            <OverviewMetric label="Companies" value={loading ? '—' : stats.companies} onClick={() => onNavigate('companies')} />
+            <OverviewMetric label="Deals" value={loading ? '—' : stats.deals} onClick={() => onNavigate('deals')} />
+            <OverviewMetric label="HubSpot" value="Connected" connected />
           </div>
-          <div className="manager-card">
-            <div className="avatar">{initials}</div>
-            <div><strong>{name}</strong><span>CRM Manager</span></div>
-            <span className="live-badge">LIVE</span>
+
+          <div className="overview-manager">
+            <div className="overview-manager-avatar">
+              {name.split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase()}
+            </div>
+            <div>
+              <strong>{name}</strong>
+              <span>CRM Manager</span>
+            </div>
+            <span className="overview-live"><i />LIVE</span>
           </div>
         </section>
       </div>
 
-      <section className="panel recent-panel">
-        <PanelHeading title="Recent deals" subtitle="Latest opportunities from HubSpot" action="Open deals" onAction={() => onNavigate('deals')} />
-        {recentDeals.length === 0 && !loading ? (
-          <div className="empty-state">No deals found.</div>
+      <section className="overview-panel overview-recent-panel">
+        <OverviewPanelHeading
+          title="Recent deals"
+          subtitle="Latest opportunities from HubSpot"
+          action="Open deals"
+          onAction={() => onNavigate('deals')}
+        />
+
+        {loading ? (
+          <div className="overview-table-loading">
+            <span /><span /><span /><span /><span />
+          </div>
+        ) : recentDeals.length === 0 ? (
+          <div className="overview-empty">No deals found.</div>
         ) : (
-          <div className="data-table-wrap">
-            <table className="data-table">
-              <thead><tr><th>Deal</th><th>Contact</th><th>Company</th><th>Amount</th><th>Stage</th></tr></thead>
+          <div className="overview-table-wrap">
+            <table className="overview-table">
+              <thead>
+                <tr>
+                  <th>Deal</th>
+                  <th>Contact</th>
+                  <th>Company</th>
+                  <th>Amount</th>
+                  <th>Stage</th>
+                </tr>
+              </thead>
               <tbody>
                 {recentDeals.map((deal) => {
                   const contact = deal.contacts?.[0];
                   const company = deal.companies?.[0];
+                  const contactName = contact
+                    ? `${contact.firstName || ''} ${contact.lastName || ''}`.trim()
+                    : '—';
+                  const companyName = company?.name || contact?.company || '—';
+
                   return (
                     <tr key={deal.id}>
-                      <td><strong>{deal.name}</strong><span className="table-sub">#{deal.id}</span></td>
-                      <td>{contact ? `${contact.firstName} ${contact.lastName}`.trim() : '—'}</td>
-                      <td>{company?.name || contact?.company || '—'}</td>
-                      <td className="money-cell">{money(deal.amount)}</td>
-                      <td><span className="stage-badge">{formatStage(deal.stage)}</span></td>
+                      <td>
+                        <strong>{deal.name || 'Unnamed Deal'}</strong>
+                        <span>#{deal.id}</span>
+                      </td>
+                      <td>{contactName}</td>
+                      <td>{companyName}</td>
+                      <td className="overview-money">{money(deal.amount)}</td>
+                      <td><span className="overview-stage-badge">{formatStage(deal.stage)}</span></td>
                     </tr>
                   );
                 })}
@@ -282,60 +409,50 @@ function Dashboard({ name, onNavigate }) {
   );
 }
 
-function KpiCard({ label, value, meta, accent, positive }) {
+function OverviewKpi({ label, value, detail, accent, positive }) {
   return (
-    <div className="kpi-card">
-      <div className="kpi-top"><span>{label}</span><button type="button">•••</button></div>
-      <strong className={accent ? 'accent-text' : ''}>{value}</strong>
-      <small className={positive ? 'positive-text' : ''}>{meta}</small>
+    <article className="overview-kpi">
+      <div className="overview-kpi-top">
+        <span>{label}</span>
+        <b>•••</b>
+      </div>
+      <strong className={accent ? 'overview-kpi-accent' : ''}>{value}</strong>
+      <small className={positive ? 'overview-positive' : ''}>{detail}</small>
+    </article>
+  );
+}
+
+function OverviewPanelHeading({ title, subtitle, action, onAction }) {
+  return (
+    <div className="overview-panel-heading">
+      <div>
+        <h2>{title}</h2>
+        <p>{subtitle}</p>
+      </div>
+      {action && (
+        <button type="button" onClick={onAction}>{action} →</button>
+      )}
     </div>
   );
 }
 
-function PipelineSnapshot({ deals, money }) {
-  const stages = useMemo(() => {
-    const map = new Map();
-    deals.forEach((deal) => {
-      const key = formatStage(deal.stage);
-      const current = map.get(key) || { count: 0, amount: 0 };
-      current.count += 1;
-      current.amount += Number(deal.amount || 0);
-      map.set(key, current);
-    });
-    return Array.from(map.entries()).slice(0, 5);
-  }, [deals]);
-
-  if (!stages.length) return <div className="empty-state compact">Pipeline data will appear here.</div>;
-
+function OverviewMetric({ label, value, onClick, connected }) {
   return (
-    <div className="snapshot-list">
-      {stages.map(([stage, data]) => (
-        <div className="snapshot-row" key={stage}>
-          <div className="snapshot-label"><span className="stage-dot" /><strong>{stage}</strong><small>{data.count} deal{data.count === 1 ? '' : 's'}</small></div>
-          <strong>{money(data.amount)}</strong>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function PanelHeading({ title, subtitle, action, onAction }) {
-  return (
-    <div className="panel-heading">
-      <div><h2>{title}</h2><p>{subtitle}</p></div>
-      {action && <button className="text-button" onClick={onAction}>{action} →</button>}
-    </div>
-  );
-}
-
-function MetricRow({ label, value, onClick, status }) {
-  return (
-    <button className="metric-row" onClick={onClick} disabled={!onClick}>
+    <button
+      type="button"
+      className="overview-metric"
+      onClick={onClick}
+      disabled={!onClick}
+    >
       <span>{label}</span>
-      <strong className={status ? 'connected-text' : ''}>{status && <i />} {value}</strong>
+      <strong className={connected ? 'overview-connected' : ''}>
+        {connected && <i />}
+        {value}
+      </strong>
     </button>
   );
 }
+
 
 function ContactsPage({ search }) {
   const [contacts, setContacts] = useState([]);

@@ -75,7 +75,7 @@ button { color: inherit; }
 .heading-actions { display: flex; align-items: center; gap: 7px; }
 
 .primary-button, .secondary-button { height: 32px; padding: 0 11px; border-radius: 6px; font-size: 9px; font-weight: 600; cursor: pointer; }
-.primary-button { border: 1px solid rgba(144, 187, 196, 0.5); background: var(--accent); color: #041014; }
+.primary-button { border: 1px solid rgba(144, 187, 196, 0.5); background: var(--accent); color: #041014 !important; -webkit-text-fill-color: #041014; }
 .primary-button:hover { filter: brightness(1.08); }
 .secondary-button { border: 1px solid var(--border-strong); background: #101519; color: #aab4bc; }
 .secondary-button:hover { background: #0b0c0c; color: var(--text); }
@@ -83,7 +83,7 @@ button { color: inherit; }
 .kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; margin-bottom: 9px; }
 .kpi-card { min-height: 112px; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); }
 .kpi-top { display: flex; justify-content: space-between; align-items: center; }
-.kpi-top span { color: #0c0d0e; font-size: 8px; }
+.kpi-top span { color: #858f99; font-size: 8px; }
 .kpi-top button { border: 0; background: transparent; color: #48525b; padding: 0; cursor: pointer; font-size: 8px; }
 .kpi-card > strong { display: block; margin-top: 12px; font-size: 22px; letter-spacing: -.04em; font-weight: 650; }
 .kpi-card > small { display: block; margin-top: 6px; color: #505a64; font-size: 8px; }
@@ -175,4 +175,131 @@ button { color: inherit; }
   color: #ffffff !important;
   background: #2bd0eb;
   border-color: #2bd0eb;
+}
+
+
+/* Dashboard action button — keep text readable even if global button styles change */
+.overview-button-primary {
+  color: #061116 !important;
+  -webkit-text-fill-color: #061116 !important;
+  background: #19c5e6 !important;
+  border-color: #19c5e6 !important;
+}
+
+/* =========================================================
+   SMART SCROLLBARS
+   Hidden normally, visible while hovering the scroll area
+   ========================================================= */
+
+/* Chrome / Edge / Firefox */
+.sidebar,
+.main-content,
+.app-main,
+.page-content {
+  scrollbar-width: none;
+}
+
+.sidebar::-webkit-scrollbar,
+.main-content::-webkit-scrollbar,
+.app-main::-webkit-scrollbar,
+.page-content::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* Show sidebar scrollbar when mouse is inside sidebar */
+.sidebar:hover,
+.sidebar:focus-within {
+  scrollbar-width: thin;
+}
+
+.sidebar:hover::-webkit-scrollbar,
+.sidebar:focus-within::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.sidebar:hover::-webkit-scrollbar-track,
+.sidebar:focus-within::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar:hover::-webkit-scrollbar-thumb,
+.sidebar:focus-within::-webkit-scrollbar-thumb {
+  background: #26343e;
+  border-radius: 10px;
+}
+html,
+body {
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* Show main scrollbar when mouse is inside main content */
+.main-content:hover,
+.main-content:focus-within,
+.app-main:hover,
+.app-main:focus-within,
+.page-content:hover,
+.page-content:focus-within {
+  scrollbar-width: thin;
+}
+
+.main-content:hover::-webkit-scrollbar,
+.main-content:focus-within::-webkit-scrollbar,
+.app-main:hover::-webkit-scrollbar,
+.app-main:focus-within::-webkit-scrollbar,
+.page-content:hover::-webkit-scrollbar,
+.page-content:focus-within::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.main-content:hover::-webkit-scrollbar-track,
+.main-content:focus-within::-webkit-scrollbar-track,
+.app-main:hover::-webkit-scrollbar-track,
+.app-main:focus-within::-webkit-scrollbar-track,
+.page-content:hover::-webkit-scrollbar-track,
+.page-content:focus-within::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.main-content:hover::-webkit-scrollbar-thumb,
+.main-content:focus-within::-webkit-scrollbar-thumb,
+.app-main:hover::-webkit-scrollbar-thumb,
+.app-main:focus-within::-webkit-scrollbar-thumb,
+.page-content:hover::-webkit-scrollbar-thumb,
+.page-content:focus-within::-webkit-scrollbar-thumb {
+  background: #26343e;
+  border-radius: 10px;
+}
+
+.main-content:hover::-webkit-scrollbar-thumb:hover,
+.app-main:hover::-webkit-scrollbar-thumb:hover,
+.page-content:hover::-webkit-scrollbar-thumb:hover {
+  background: #3b4d59;
+}
+
+
+/* =========================================================
+   FINAL TOPBAR / BREADCRUMB CLEANUP
+   Dashboard uses the page itself as the visual context.
+   ========================================================= */
+
+.topbar {
+  justify-content: flex-end;
+}
+
+.topbar .breadcrumb {
+  display: none !important;
+}
+
+/* Keep the top-right controls exactly where they are */
+.topbar-actions {
+  margin-left: auto;
 }
