@@ -1,0 +1,230 @@
+/* =========================================================
+   ICHIKAWA CRM — DASHBOARD / COMPANIES
+   ========================================================= */
+
+.pipeline-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.pipeline-summary-card {
+  min-height: 100px;
+  padding: 16px 18px;
+  border-radius: var(--r);
+}
+.pipeline-summary-card > span {
+  position: relative;
+  z-index: 1;
+  display: block;
+  margin-bottom: 10px;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.pipeline-summary-card > strong {
+  position: relative;
+  z-index: 1;
+  display: block;
+  color: #f5eee5;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 26px;
+  font-weight: 500;
+}
+.pipeline-summary-card > small {
+  position: relative;
+  z-index: 1;
+  display: block;
+  margin-top: 5px;
+  color: var(--dim);
+  font-size: 8px;
+}
+
+.deals-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.deals-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 12px;
+}
+.deals-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+}
+.deals-table th,
+.deals-table td {
+  padding: 13px 14px;
+  border-bottom: 1px solid rgba(255,255,255,.055);
+  text-align: left;
+}
+.deals-table th {
+  color: var(--dim);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.deals-table td {
+  color: var(--text-soft);
+  font-size: 10px;
+}
+.deals-table tbody tr { transition: background .15s ease; }
+.deals-table tbody tr:hover { background: rgba(255,255,255,.025); }
+.deals-table td strong { color: #eee7df; font-weight: 700; }
+
+.form-field {
+  display: grid;
+  gap: 7px;
+}
+.form-field label {
+  color: #aaa197;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+.form-field input,
+.form-field textarea,
+.form-field select {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: var(--text);
+  background: rgba(255,255,255,.035);
+  padding: 10px 11px;
+  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.form-field input,
+.form-field select { min-height: 40px; }
+.form-field textarea { resize: vertical; min-height: 92px; }
+.form-field input::placeholder,
+.form-field textarea::placeholder { color: #57514b; }
+.form-field input:focus,
+.form-field textarea:focus,
+.form-field select:focus {
+  border-color: rgba(224,164,81,.60);
+  background: rgba(255,255,255,.05);
+  box-shadow: 0 0 0 3px rgba(224,164,81,.07);
+}
+.form-field select option {
+  color: #eee7df;
+  background: #171411;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 11px;
+}
+.customer-form {
+  display: grid;
+  gap: 14px;
+}
+.form-message {
+  padding: 10px 12px;
+  border-radius: 9px;
+  font-size: 10px;
+}
+.form-message.error {
+  color: #f1b9bd;
+  border: 1px solid rgba(233,120,128,.25);
+  background: rgba(233,120,128,.07);
+}
+.form-message.success {
+  color: #a6dfc0;
+  border: 1px solid rgba(84,209,154,.22);
+  background: rgba(84,209,154,.06);
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  background: rgba(0,0,0,.68);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.customer-modal,
+.deal-form-modal,
+.deal-detail-modal {
+  width: min(100%, 620px);
+  max-height: calc(100vh - 44px);
+  overflow-y: auto;
+  border: 1px solid var(--line-strong);
+  border-radius: 20px;
+  background:
+    linear-gradient(145deg, rgba(27,27,27,.96), rgba(11,11,11,.97));
+  box-shadow: 0 40px 120px rgba(0,0,0,.65), inset 0 1px rgba(255,255,255,.07);
+}
+.deal-detail-modal { width: min(100%, 760px); }
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 24px 25px 19px;
+  border-bottom: 1px solid var(--line);
+}
+.modal-header h2 {
+  margin: 0;
+  color: #f7f0e8;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 25px;
+  font-weight: 500;
+}
+.modal-header p {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 10px;
+}
+.modal-close {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: rgba(255,255,255,.035);
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 18px;
+}
+.modal-close:hover {
+  color: var(--text);
+  border-color: rgba(224,164,81,.3);
+}
+.customer-modal .customer-form,
+.deal-form-modal .customer-form { padding: 21px 25px 25px; }
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 5px;
+}
+.deal-form-loading {
+  padding: 40px 25px;
+  color: var(--muted);
+  text-align: center;
+  font-size: 11px;
+}
+
+@media (max-width: 720px) {
+  .pipeline-summary { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  .modal-overlay { padding: 12px; }
+  .customer-modal, .deal-form-modal, .deal-detail-modal {
+    max-height: calc(100vh - 24px);
+    border-radius: 16px;
+  }
+  .modal-header { padding: 20px 18px 16px; }
+  .customer-modal .customer-form,
+  .deal-form-modal .customer-form { padding: 18px; }
+}

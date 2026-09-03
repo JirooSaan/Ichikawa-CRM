@@ -1,0 +1,246 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  SALES
+  TECHNICAL
+  MANAGER
+  CLIENT
+}
+
+enum OrganizationType {
+  INTERNAL
+  CLIENT
+}
+
+enum MembershipRole {
+  INTERNAL_ADMIN
+  MANAGER
+  SALES
+  TECHNICAL
+  CLIENT_ADMIN
+  CLIENT_MEMBER
+  CLIENT_VIEWER
+}
+
+enum MembershipStatus {
+  ACTIVE
+  INVITED
+  SUSPENDED
+}
+
+enum DealStatus {
+  ACTIVE
+  WON
+  LOST
+  CANCELLED
+}
+
+enum ReviewStatus {
+  NOT_STARTED
+  IN_REVIEW
+  COMPLETED
+  OVERRIDDEN
+}
+
+enum HistoryChangeType {
+  NORMAL
+  EDIT
+  MANAGER_OVERRIDE
+  SYSTEM
+}
+
+model Company {
+  id           String    @id @default(cuid())
+  name         String
+  industry     String?
+  phone        String?
+  email        String?
+  website      String?
+  address      String?
+
+  users        User[]
+  contacts     Contact[]
+  deals        Deal[]
+
+  // A client company can have one client organization.
+  organization Organization?
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  role         UserRole
+
+  // Keep these for backward compatibility during migration.
+  // We will eventually move authorization fully to Membership.
+  companyId    String?
+  company      Company?  @relation(fields: [companyId], references: [id])
+
+  // Clerk identity.
+  clerkUserId  String?   @unique
+
+  // New access-management relationship.
+  memberships  Membership[]
+
+  ownedDeals   Deal[]    @relation("DealOwner")
+  history      DealHistory[]
+
+  companyAdmin Boolean   @default(false)
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Organization {
+  id           String           @id @default(cuid())
+  name         String
+  type         OrganizationType
+
+  // CLIENT organizations map to an existing CRM Company.
+  // INTERNAL organization has no company.
+  companyId    String?          @unique
+  company      Company?         @relation(fields: [companyId], references: [id])
+
+  memberships  Membership[]
+
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([type])
+}
+
+model Membership {
+  id             String            @id @default(cuid())
+  userId         String
+  organizationId String
+
+  role           MembershipRole
+  status         MembershipStatus @default(ACTIVE)
+
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([userId, organizationId])
+  @@index([userId])
+  @@index([organizationId])
+}
+
+model Contact {
+  id           String    @id @default(cuid())
+
+  companyId    String
+  company      Company   @relation(fields: [companyId], references: [id])
+
+  firstName    String
+  lastName     String?
+  email        String?
+  phone        String?
+  jobTitle     String?
+
+  deals        Deal[]
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model DealStage {
+  id           String    @id @default(cuid())
+  name         String    @unique
+  order        Int       @unique
+  description  String?
+
+  deals        Deal[]
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Deal {
+  id           String       @id @default(cuid())
+
+  title        String
+  description  String?
+
+  companyId    String
+  company      Company      @relation(fields: [companyId], references: [id])
+
+  contactId    String?
+  contact      Contact?     @relation(fields: [contactId], references: [id])
+
+  stageId      String
+  stage        DealStage    @relation(fields: [stageId], references: [id])
+
+  ownerId      String?
+  owner        User?        @relation("DealOwner", fields: [ownerId], references: [id])
+
+  amount       Decimal?     @db.Decimal(15, 2)
+  currency     String       @default("INR")
+
+  status       DealStatus   @default(ACTIVE)
+
+  review       DealReview?
+  history      DealHistory[]
+
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model DealReview {
+  id                  String       @id @default(cuid())
+
+  dealId              String       @unique
+  deal                Deal         @relation(fields: [dealId], references: [id])
+
+  status              ReviewStatus @default(NOT_STARTED)
+
+  startedAt           DateTime?
+  deadline            DateTime?
+  completedAt         DateTime?
+
+  estimatedCost       Decimal?     @db.Decimal(15, 2)
+  expectedProfit      Decimal?     @db.Decimal(15, 2)
+  expectedMargin      Decimal?     @db.Decimal(5, 2)
+
+  customerTargetPrice Decimal?     @db.Decimal(15, 2)
+  minimumPrice        Decimal?     @db.Decimal(15, 2)
+  currentOffer        Decimal?     @db.Decimal(15, 2)
+
+  negotiationNotes    String?
+  riskNotes           String?
+
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+}
+
+model DealHistory {
+  id          String             @id @default(cuid())
+
+  dealId      String
+  deal        Deal               @relation(fields: [dealId], references: [id])
+
+  changedById String?
+  changedBy   User?              @relation(fields: [changedById], references: [id])
+
+  changeType  HistoryChangeType
+  field       String?
+  oldValue    String?
+  newValue    String?
+  reason      String?
+
+  createdAt   DateTime           @default(now())
+}

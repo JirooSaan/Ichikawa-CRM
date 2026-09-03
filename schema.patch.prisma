@@ -1,0 +1,77 @@
+/*
+PHASE 1 ACCESS-MANAGEMENT SCHEMA PATCH
+
+Apply these changes to backend/prisma/schema.prisma.
+
+1) Keep the existing UserRole enum temporarily for backward compatibility.
+2) Add the three enums below.
+3) Add the Organization model.
+4) Add the Membership model.
+5) Add the marked fields/relations to User and Company.
+
+Do NOT edit src/generated/prisma manually. Run Prisma generate after the schema change.
+*/
+
+enum OrganizationType {
+  INTERNAL
+  CLIENT
+}
+
+enum MembershipRole {
+  INTERNAL_ADMIN
+  MANAGER
+  SALES
+  TECHNICAL
+  CLIENT_ADMIN
+  CLIENT_MEMBER
+  CLIENT_VIEWER
+}
+
+enum MembershipStatus {
+  ACTIVE
+  INVITED
+  SUSPENDED
+}
+
+// Add to Company:
+//   organization Organization?
+
+// Add to User:
+//   clerkUserId  String? @unique
+//   memberships  Membership[]
+
+// Add these new models:
+
+model Organization {
+  id           String           @id @default(cuid())
+  name         String
+  type         OrganizationType
+
+  // Client organizations map to the existing CRM Company.
+  // Internal Ichikawa organization has companyId = null.
+  companyId    String?          @unique
+  company      Company?         @relation(fields: [companyId], references: [id])
+
+  memberships  Membership[]
+
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+}
+
+model Membership {
+  id             String            @id @default(cuid())
+  userId         String
+  organizationId String
+  role           MembershipRole
+  status         MembershipStatus @default(ACTIVE)
+
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([userId, organizationId])
+  @@index([organizationId])
+  @@index([userId])
+}
