@@ -4,7 +4,7 @@ import Deals from './Deals';
 import './App.css';
 import './Dashboard.css';
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 
 // Local CRM API helpers. The endpoints may return either a plain array
 // or an object such as { results: [...] } / { data: [...] }.

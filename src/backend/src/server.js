@@ -38,7 +38,6 @@ app.use(
     origin:
       process.env.FRONTEND_URL ||
       "http://localhost:5173",
-
     credentials: true,
   })
 );
@@ -65,40 +64,19 @@ app.use(authMiddleware);
   ============================================================
 */
 
-app.use(
-  "/api/hubspot",
-  hubspotRoutes
-);
+app.use("/api/hubspot", hubspotRoutes);
 
-app.use(
-  "/api/test-db",
-  testDbRoutes
-);
+app.use("/api/test-db", testDbRoutes);
 
-app.use(
-  "/api/companies",
-  companiesRoutes
-);
+app.use("/api/companies", companiesRoutes);
 
-app.use(
-  "/api/contacts",
-  contactsRoutes
-);
+app.use("/api/contacts", contactsRoutes);
 
-app.use(
-  "/api/deal-stages",
-  dealStageRoutes
-);
+app.use("/api/deal-stages", dealStageRoutes);
 
-app.use(
-  "/api/deals",
-  dealsRoutes
-);
+app.use("/api/deals", dealsRoutes);
 
-app.use(
-  "/api/access",
-  accessRoutes
-);
+app.use("/api/access", accessRoutes);
 
 /*
   ============================================================
@@ -106,20 +84,13 @@ app.use(
   ============================================================
 */
 
-app.get(
-  "/api/health",
-  (req, res) => {
-    res.json({
-      status: "ok",
-
-      service:
-        "ICHIKAWA SOLUTIONS LTD. CRM Manager Backend",
-
-      timestamp:
-        new Date().toISOString(),
-    });
-  }
-);
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "ok",
+    service: "ICHIKAWA SOLUTIONS LTD. CRM Manager Backend",
+    timestamp: new Date().toISOString(),
+  });
+});
 
 /*
   ============================================================
@@ -127,51 +98,42 @@ app.get(
   ============================================================
 */
 
-app.use(
-  (error, req, res, next) => {
-    console.error(
-      "API Error:",
-      error
-    );
+app.use((error, req, res, next) => {
+  console.error("API Error:", error);
 
-    const status =
-      error.status || 500;
+  const status = error.status || 500;
 
-    res.status(status).json({
-      error:
-        status === 500
-          ? "Internal server error"
-          : error.message,
+  res.status(status).json({
+    error:
+      status === 500
+        ? "Internal server error"
+        : error.message,
 
-      message:
-        error.message,
-    });
-  }
-);
+    message: error.message,
+  });
+});
 
 /*
   ============================================================
-  START SERVER
+  LOCAL SERVER
   ============================================================
 */
 
-app.listen(
-  PORT,
-  () => {
-    console.log(
-      "======================================"
-    );
-
+if (process.env.NETLIFY !== "true") {
+  app.listen(PORT, () => {
+    console.log("======================================");
     console.log(
       `ICHIKAWA SOLUTIONS LTD. CRM Manager backend running on ${PORT}`
     );
+    console.log("Access management: ENABLED");
+    console.log("======================================");
+  });
+}
 
-    console.log(
-      "Access management: ENABLED"
-    );
+/*
+  ============================================================
+  EXPORT FOR NETLIFY FUNCTIONS
+  ============================================================
+*/
 
-    console.log(
-      "======================================"
-    );
-  }
-);
+export default app;
