@@ -97,22 +97,16 @@ app.get("/api/health", (req, res) => {
   ERROR HANDLER
   ============================================================
 */
+app.use((err, req, res, next) => {
+  console.error("[API ERROR]", err);
 
-app.use((error, req, res, next) => {
-  console.error("API Error:", error);
-
-  const status = error.status || 500;
-
-  res.status(status).json({
-    error:
-      status === 500
-        ? "Internal server error"
-        : error.message,
-
-    message: error.message,
+  res.status(err.status || 500).json({
+    error: err.message || "Internal server error",
+    details: process.env.NODE_ENV !== "production"
+      ? err.stack
+      : undefined,
   });
 });
-
 /*
   ============================================================
   LOCAL SERVER
