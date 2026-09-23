@@ -481,3 +481,24 @@
     grid-template-columns: 1fr;
   }
 }
+.form-section {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.form-section-header {
+  margin-bottom: 20px;
+}
+
+.form-section-header h3 {
+  margin: 6px 0 4px;
+  font-size: 18px;
+}
+
+.form-section-header p {
+  margin: 0;
+  opacity: 0.65;
+  font-size: 13px;
+  line-height: 1.5;
+}

@@ -290,8 +290,14 @@ function Deals({ apiFetch }) {
         `${API_BASE}/api/deals`
       );
 
-      const data =
-        await response.json();
+     const data =
+  await response.json();
+
+console.log('[DEALS API]', {
+  status: response.status,
+  data,
+  isArray: Array.isArray(data),
+});
 
       if (!response.ok) {
         throw new Error(

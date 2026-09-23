@@ -687,7 +687,7 @@ function Dashboard({ name, onNavigate, apiFetch }) {
   |--------------------------------------------------------------------------
   */
 
-  const loadStats = async () => {
+    const loadStats = async () => {
     setLoading(true);
     setError('');
 
@@ -705,17 +705,55 @@ function Dashboard({ name, onNavigate, apiFetch }) {
       ]);
 
       if (!contactsResponse.ok) {
-        throw new Error(`Contacts: HTTP ${contactsResponse.status}`);
+        throw new Error(
+          `Contacts: HTTP ${contactsResponse.status}`
+        );
       }
+
       if (!companiesResponse.ok) {
-        throw new Error(`Companies: HTTP ${companiesResponse.status}`);
+        throw new Error(
+          `Companies: HTTP ${companiesResponse.status}`
+        );
       }
+
       if (!dealsResponse.ok) {
-        throw new Error(`Deals: HTTP ${dealsResponse.status}`);
+        throw new Error(
+          `Deals: HTTP ${dealsResponse.status}`
+        );
       }
+
       if (!stagesResponse.ok) {
-        throw new Error(`Deal stages: HTTP ${stagesResponse.status}`);
+        throw new Error(
+          `Deal stages: HTTP ${stagesResponse.status}`
+        );
       }
+
+      const readJsonResponse = async (
+        response,
+        label
+      ) => {
+        const text = await response.text();
+
+        try {
+          return JSON.parse(text);
+        } catch {
+          console.error(
+            `[Dashboard] ${label} returned invalid JSON`,
+            {
+              status: response.status,
+              contentType:
+                response.headers.get(
+                  'content-type'
+                ),
+              body: text.slice(0, 500),
+            }
+          );
+
+          throw new Error(
+            `${label}: Backend returned invalid JSON`
+          );
+        }
+      };
 
       const [
         contactsData,
@@ -723,18 +761,42 @@ function Dashboard({ name, onNavigate, apiFetch }) {
         dealsData,
         stagesData,
       ] = await Promise.all([
-        contactsResponse.json(),
-        companiesResponse.json(),
-        dealsResponse.json(),
-        stagesResponse.json(),
+        readJsonResponse(
+          contactsResponse,
+          'Contacts'
+        ),
+        readJsonResponse(
+          companiesResponse,
+          'Companies'
+        ),
+        readJsonResponse(
+          dealsResponse,
+          'Deals'
+        ),
+        readJsonResponse(
+          stagesResponse,
+          'Deal stages'
+        ),
       ]);
 
-      const contacts = extractArray(contactsData);
-      const companies = extractArray(companiesData);
-      const deals = extractArray(dealsData).map(normalizeDeal);
-      const stages = extractArray(stagesData)
-        .map(normalizeStage)
-        .sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
+      const contacts =
+        extractArray(contactsData);
+
+      const companies =
+        extractArray(companiesData);
+
+      const deals =
+        extractArray(dealsData)
+          .map(normalizeDeal);
+
+      const stages =
+        extractArray(stagesData)
+          .map(normalizeStage)
+          .sort(
+            (a, b) =>
+              Number(a.order || 0) -
+              Number(b.order || 0)
+          );
 
       setStats({
         contacts: contacts.length,
@@ -750,7 +812,11 @@ function Dashboard({ name, onNavigate, apiFetch }) {
         ],
       });
     } catch (err) {
-      console.error('Dashboard error:', err);
+      console.error(
+        'Dashboard error:',
+        err
+      );
+
       setError(
         err.message ||
           'Unable to load dashboard data'

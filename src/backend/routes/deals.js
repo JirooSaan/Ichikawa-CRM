@@ -111,25 +111,95 @@ router.get("/:id", async (req, res) => {
       });
     }
 
-    const deal = await prisma.deal.findUnique({
-      where: {
-        id: req.params.id,
-      },
+    const deal = await prisma.deal.create({
+  data: {
+    title: title.trim(),
+    description: description?.trim() || null,
 
-      include: {
-        company: true,
-        contact: true,
-        stage: true,
-        owner: true,
-        review: true,
+    companyId: company.id,
 
-        history: {
-          orderBy: {
-            createdAt: "desc",
-          },
-        },
+    contactId: contactId?.trim() || null,
+
+    stageId: stage.id,
+
+    ownerId: ownerId?.trim() || null,
+
+    amount:
+      amount !== undefined &&
+      amount !== null &&
+      amount !== ""
+        ? amount
+        : null,
+
+    currency: currency?.trim() || "JPY",
+
+    review: {
+      create: {
+        status: req.body.reviewStatus?.trim() || "NOT_STARTED",
+
+        deadline: req.body.deadline
+          ? new Date(req.body.deadline)
+          : null,
+
+        estimatedCost:
+          req.body.estimatedCost !== undefined &&
+          req.body.estimatedCost !== null &&
+          req.body.estimatedCost !== ""
+            ? req.body.estimatedCost
+            : null,
+
+        expectedProfit:
+          req.body.expectedProfit !== undefined &&
+          req.body.expectedProfit !== null &&
+          req.body.expectedProfit !== ""
+            ? req.body.expectedProfit
+            : null,
+
+        expectedMargin:
+          req.body.expectedMargin !== undefined &&
+          req.body.expectedMargin !== null &&
+          req.body.expectedMargin !== ""
+            ? req.body.expectedMargin
+            : null,
+
+        customerTargetPrice:
+          req.body.customerTargetPrice !== undefined &&
+          req.body.customerTargetPrice !== null &&
+          req.body.customerTargetPrice !== ""
+            ? req.body.customerTargetPrice
+            : null,
+
+        minimumPrice:
+          req.body.minimumPrice !== undefined &&
+          req.body.minimumPrice !== null &&
+          req.body.minimumPrice !== ""
+            ? req.body.minimumPrice
+            : null,
+
+        currentOffer:
+          req.body.currentOffer !== undefined &&
+          req.body.currentOffer !== null &&
+          req.body.currentOffer !== ""
+            ? req.body.currentOffer
+            : null,
+
+        negotiationNotes:
+          req.body.negotiationNotes?.trim() || null,
+
+        riskNotes:
+          req.body.riskNotes?.trim() || null,
       },
-    });
+    },
+  },
+
+  include: {
+    company: true,
+    contact: true,
+    stage: true,
+    owner: true,
+    review: true,
+  },
+});
 
     if (!deal) {
       return res.status(404).json({
