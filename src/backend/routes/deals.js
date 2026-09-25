@@ -5,9 +5,9 @@ import {
   getCurrentPrincipal,
   canReadCRM,
   canManageDeals,
-  canChangeDealStage,
   canDeleteCRM,
   canAccessCompany,
+  canChangeDealStage,
 } from "../src/auth/access.js";
 
 const router = express.Router();
@@ -29,8 +29,7 @@ router.get("/", async (req, res) => {
 
     if (!canReadCRM(principal)) {
       return res.status(403).json({
-        error: "Forbidden",
-        message: "You do not have access to CRM data.",
+        error: "You do not have permission to view deals",
       });
     }
 
@@ -64,7 +63,6 @@ router.get("/", async (req, res) => {
 
     const deals = await prisma.deal.findMany({
       where,
-
       include: {
         company: true,
         contact: true,
@@ -72,7 +70,6 @@ router.get("/", async (req, res) => {
         owner: true,
         review: true,
       },
-
       orderBy: {
         createdAt: "desc",
       },
@@ -98,8 +95,8 @@ router.get("/", async (req, res) => {
  * GET /api/deals/:id
  * =========================================================
  *
- * A client may only retrieve a deal belonging to their
- * own company.
+ * Internal users can retrieve any deal.
+ * Client users can retrieve only their company's deals.
  */
 router.get("/:id", async (req, res) => {
   try {
@@ -107,99 +104,27 @@ router.get("/:id", async (req, res) => {
 
     if (!canReadCRM(principal)) {
       return res.status(403).json({
-        error: "Forbidden",
+        error: "You do not have permission to view deals",
       });
     }
 
-    const deal = await prisma.deal.create({
-  data: {
-    title: title.trim(),
-    description: description?.trim() || null,
-
-    companyId: company.id,
-
-    contactId: contactId?.trim() || null,
-
-    stageId: stage.id,
-
-    ownerId: ownerId?.trim() || null,
-
-    amount:
-      amount !== undefined &&
-      amount !== null &&
-      amount !== ""
-        ? amount
-        : null,
-
-    currency: currency?.trim() || "JPY",
-
-    review: {
-      create: {
-        status: req.body.reviewStatus?.trim() || "NOT_STARTED",
-
-        deadline: req.body.deadline
-          ? new Date(req.body.deadline)
-          : null,
-
-        estimatedCost:
-          req.body.estimatedCost !== undefined &&
-          req.body.estimatedCost !== null &&
-          req.body.estimatedCost !== ""
-            ? req.body.estimatedCost
-            : null,
-
-        expectedProfit:
-          req.body.expectedProfit !== undefined &&
-          req.body.expectedProfit !== null &&
-          req.body.expectedProfit !== ""
-            ? req.body.expectedProfit
-            : null,
-
-        expectedMargin:
-          req.body.expectedMargin !== undefined &&
-          req.body.expectedMargin !== null &&
-          req.body.expectedMargin !== ""
-            ? req.body.expectedMargin
-            : null,
-
-        customerTargetPrice:
-          req.body.customerTargetPrice !== undefined &&
-          req.body.customerTargetPrice !== null &&
-          req.body.customerTargetPrice !== ""
-            ? req.body.customerTargetPrice
-            : null,
-
-        minimumPrice:
-          req.body.minimumPrice !== undefined &&
-          req.body.minimumPrice !== null &&
-          req.body.minimumPrice !== ""
-            ? req.body.minimumPrice
-            : null,
-
-        currentOffer:
-          req.body.currentOffer !== undefined &&
-          req.body.currentOffer !== null &&
-          req.body.currentOffer !== ""
-            ? req.body.currentOffer
-            : null,
-
-        negotiationNotes:
-          req.body.negotiationNotes?.trim() || null,
-
-        riskNotes:
-          req.body.riskNotes?.trim() || null,
+    const deal = await prisma.deal.findUnique({
+      where: {
+        id: req.params.id,
       },
-    },
-  },
-
-  include: {
-    company: true,
-    contact: true,
-    stage: true,
-    owner: true,
-    review: true,
-  },
-});
+      include: {
+        company: true,
+        contact: true,
+        stage: true,
+        owner: true,
+        review: true,
+        history: {
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
+      },
+    });
 
     if (!deal) {
       return res.status(404).json({
@@ -243,9 +168,7 @@ router.post("/", async (req, res) => {
 
     if (!canManageDeals(principal)) {
       return res.status(403).json({
-        error: "Forbidden",
-        message:
-          "Only Ichikawa Solutions users can create deals.",
+        error: "You do not have permission to create deals",
       });
     }
 
@@ -258,6 +181,17 @@ router.post("/", async (req, res) => {
       ownerId,
       amount,
       currency,
+
+      reviewStatus,
+      deadline,
+      estimatedCost,
+      expectedProfit,
+      expectedMargin,
+      customerTargetPrice,
+      minimumPrice,
+      currentOffer,
+      negotiationNotes,
+      riskNotes,
     } = req.body;
 
     if (!title || !title.trim()) {
@@ -335,13 +269,9 @@ router.post("/", async (req, res) => {
       data: {
         title: title.trim(),
         description: description?.trim() || null,
-
         companyId: company.id,
-
         contactId: contactId?.trim() || null,
-
         stageId: stage.id,
-
         ownerId: ownerId?.trim() || null,
 
         amount:
@@ -351,7 +281,65 @@ router.post("/", async (req, res) => {
             ? amount
             : null,
 
-        currency: currency?.trim() || "INR",
+        currency: currency?.trim() || "JPY",
+
+        review: {
+          create: {
+            status: reviewStatus?.trim() || "NOT_STARTED",
+
+            deadline: deadline
+              ? new Date(deadline)
+              : null,
+
+            estimatedCost:
+              estimatedCost !== undefined &&
+              estimatedCost !== null &&
+              estimatedCost !== ""
+                ? estimatedCost
+                : null,
+
+            expectedProfit:
+              expectedProfit !== undefined &&
+              expectedProfit !== null &&
+              expectedProfit !== ""
+                ? expectedProfit
+                : null,
+
+            expectedMargin:
+              expectedMargin !== undefined &&
+              expectedMargin !== null &&
+              expectedMargin !== ""
+                ? expectedMargin
+                : null,
+
+            customerTargetPrice:
+              customerTargetPrice !== undefined &&
+              customerTargetPrice !== null &&
+              customerTargetPrice !== ""
+                ? customerTargetPrice
+                : null,
+
+            minimumPrice:
+              minimumPrice !== undefined &&
+              minimumPrice !== null &&
+              minimumPrice !== ""
+                ? minimumPrice
+                : null,
+
+            currentOffer:
+              currentOffer !== undefined &&
+              currentOffer !== null &&
+              currentOffer !== ""
+                ? currentOffer
+                : null,
+
+            negotiationNotes:
+              negotiationNotes?.trim() || null,
+
+            riskNotes:
+              riskNotes?.trim() || null,
+          },
+        },
       },
 
       include: {
@@ -505,19 +493,11 @@ router.put("/:id", async (req, res) => {
 
       data: {
         title: title.trim(),
-
-        description:
-          description?.trim() || null,
-
+        description: description?.trim() || null,
         companyId: company.id,
-
-        contactId:
-          contactId?.trim() || null,
-
+        contactId: contactId?.trim() || null,
         stageId: stage.id,
-
-        ownerId:
-          ownerId?.trim() || null,
+        ownerId: ownerId?.trim() || null,
 
         amount:
           amount !== undefined &&
@@ -526,8 +506,7 @@ router.put("/:id", async (req, res) => {
             ? amount
             : null,
 
-        currency:
-          currency?.trim() || "INR",
+        currency: currency?.trim() || "JPY",
 
         ...(status ? { status } : {}),
       },
@@ -567,9 +546,7 @@ router.put("/:id", async (req, res) => {
  * PATCH /api/deals/:id/stage
  * =========================================================
  *
- * Used by the drag/drop pipeline.
- *
- * ONLY Ichikawa internal users can change stages.
+ * Only Ichikawa internal users can change deal stages.
  */
 router.patch("/:id/stage", async (req, res) => {
   try {
@@ -594,10 +571,6 @@ router.patch("/:id/stage", async (req, res) => {
     const existingDeal = await prisma.deal.findUnique({
       where: {
         id: req.params.id,
-      },
-      include: {
-        stage: true,
-        company: true,
       },
     });
 
@@ -663,7 +636,7 @@ router.patch("/:id/stage", async (req, res) => {
  * DELETE /api/deals/:id
  * =========================================================
  *
- * Only Manager / Internal Admin.
+ * All Ichikawa internal users can delete deals.
  */
 router.delete("/:id", async (req, res) => {
   try {
@@ -671,25 +644,23 @@ router.delete("/:id", async (req, res) => {
 
     if (!canDeleteCRM(principal)) {
       return res.status(403).json({
-        error: "Forbidden",
-        message:
-          "Only managers can delete deals.",
+        error: "You do not have permission to delete deals",
       });
     }
 
-    const deal = await prisma.deal.findUnique({
+    const existingDeal = await prisma.deal.findUnique({
       where: {
         id: req.params.id,
       },
     });
 
-    if (!deal) {
+    if (!existingDeal) {
       return res.status(404).json({
         error: "Deal not found",
       });
     }
 
-    if (!canAccessCompany(principal, deal.companyId)) {
+    if (!canAccessCompany(principal, existingDeal.companyId)) {
       return res.status(403).json({
         error: "Forbidden",
       });

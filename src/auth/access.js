@@ -201,6 +201,7 @@ export function canChangeDealStage(principal) {
  *
  * Only managers/admins can delete.
  */
+
 export function canDeleteCRM(principal) {
   return principal.memberships.some(
     (membership) =>
@@ -208,6 +209,8 @@ export function canDeleteCRM(principal) {
       [
         "INTERNAL_ADMIN",
         "MANAGER",
+        "SALES",
+        "TECHNICAL",
       ].includes(membership.role)
   );
 }

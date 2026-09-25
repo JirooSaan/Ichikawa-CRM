@@ -3,6 +3,13 @@ import CreateDeal from './CreateDeal';
 import './Deals.css';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+function extractArray(data) {
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.results)) return data.results;
+  if (Array.isArray(data?.data)) return data.data;
+  if (Array.isArray(data?.deals)) return data.deals;
+  return [];
+}
 
 /* =====================================================
    HELPERS
@@ -54,6 +61,11 @@ function DealCard({
   deal,
   onDragStart,
   onClick,
+  isClient,
+  actionMenuDealId,
+  setActionMenuDealId,
+  onEdit,
+  onDelete,
 }) {
   const contact = deal?.contact;
   const company = deal?.company;
@@ -78,22 +90,68 @@ function DealCard({
 
   return (
     <div
-      className="pipeline-deal-card"
-      draggable
-      onDragStart={(event) => {
-        onDragStart(event, deal);
-      }}
-      onClick={() => onClick(deal)}
-    >
+  className="pipeline-deal-card"
+  draggable={!isClient}
+  onDragStart={(event) => {
+    if (!isClient) {
+      onDragStart(event, deal);
+    }
+  }}
+  onClick={() => onClick(deal)}
+>
       <div className="pipeline-deal-top">
-        <span className="deal-id">
-          #{deal.id}
-        </span>
+  <span className="deal-id">
+    #{deal.id}
+  </span>
 
-        <span className="deal-menu">
-          •••
-        </span>
-      </div>
+  {!isClient && (
+    <div className="deal-action-wrapper">
+      <button
+        type="button"
+        className="deal-menu-button"
+        onClick={(event) => {
+          event.stopPropagation();
+
+          setActionMenuDealId(
+            actionMenuDealId === deal.id
+              ? null
+              : deal.id
+          );
+        }}
+      >
+        ⋮
+      </button>
+
+      {actionMenuDealId === deal.id && (
+        <div
+          className="deal-action-menu"
+          onClick={(event) =>
+            event.stopPropagation()
+          }
+        >
+          <button
+            type="button"
+            onClick={() =>
+              onEdit(deal)
+            }
+          >
+            Edit Deal
+          </button>
+
+          <button
+            type="button"
+            className="danger-action"
+            onClick={() =>
+              onDelete(deal)
+            }
+          >
+            Delete Deal
+          </button>
+        </div>
+      )}
+    </div>
+  )}
+</div>
 
       <h3>
         {getDealName(deal)}
@@ -191,6 +249,19 @@ function Deals({ apiFetch }) {
 
   const [showCreateDeal, setShowCreateDeal] =
     useState(false);
+    const [actionMenuDealId, setActionMenuDealId] =
+  useState(null);
+
+const [editingDeal, setEditingDeal] =
+  useState(null);
+
+const [editForm, setEditForm] = useState({
+  title: '',
+  description: '',
+  amount: '',
+  stageId: '',
+  status: 'ACTIVE',
+});
 
       /* =====================================================
      CHECK CRM ACCESS / ROLE
@@ -325,8 +396,182 @@ console.log('[DEALS API]', {
     } finally {
       setLoading(false);
     }
-  };
+  };/* =====================================================
+   DELETE DEAL
+===================================================== */
 
+const handleDeleteDeal = async (deal) => {
+  if (!deal?.id) {
+    return;
+  }
+
+  const confirmed = window.confirm(
+    `Delete "${getDealName(deal)}"?\n\nThis action cannot be undone.`
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+    setError('');
+
+    const response = await apiFetch(
+      `${API_BASE}/api/deals/${deal.id}`,
+      {
+        method: 'DELETE',
+      }
+    );
+
+    const data = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      throw new Error(
+        data?.message ||
+        data?.error ||
+        'Failed to delete deal'
+      );
+    }
+
+    setDeals((currentDeals) =>
+      currentDeals.filter(
+        (currentDeal) =>
+          currentDeal.id !== deal.id
+      )
+    );
+
+    setActionMenuDealId(null);
+
+    if (
+      selectedDeal?.id === deal.id
+    ) {
+      setSelectedDeal(null);
+    }
+  } catch (err) {
+    console.error(
+      'Delete deal error:',
+      err
+    );
+
+    setError(
+      err.message ||
+      'Unable to delete deal'
+    );
+  }
+};
+
+/* =====================================================
+   START EDIT DEAL
+===================================================== */
+
+const handleStartEditDeal = (deal) => {
+  setEditingDeal(deal);
+
+  setEditForm({
+    title: deal?.title || '',
+    description: deal?.description || '',
+    amount: deal?.amount ?? '',
+    stageId: deal?.stageId || '',
+    status: deal?.status || 'ACTIVE',
+  });
+
+  setActionMenuDealId(null);
+};
+
+/* =====================================================
+   SAVE EDITED DEAL
+===================================================== */
+
+const handleSaveEditDeal = async () => {
+  if (!editingDeal) {
+    return;
+  }
+
+  if (!editForm.title.trim()) {
+    setError('Deal title is required');
+    return;
+  }
+
+  if (!editForm.stageId) {
+    setError('Deal stage is required');
+    return;
+  }
+
+  try {
+    setError('');
+
+    const response = await apiFetch(
+      `${API_BASE}/api/deals/${editingDeal.id}`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: editForm.title.trim(),
+
+          description:
+            editForm.description.trim() ||
+            null,
+
+          companyId:
+            editingDeal.companyId,
+
+          contactId:
+            editingDeal.contactId || null,
+
+          stageId:
+            editForm.stageId,
+
+          ownerId:
+            editingDeal.ownerId || null,
+
+          amount:
+            editForm.amount !== ''
+              ? editForm.amount
+              : null,
+
+          currency:
+            editingDeal.currency || 'JPY',
+
+          status:
+            editForm.status,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data?.message ||
+        data?.error ||
+        'Failed to update deal'
+      );
+    }
+
+    setDeals((currentDeals) =>
+      currentDeals.map((deal) =>
+        deal.id === data.id
+          ? data
+          : deal
+      )
+    );
+
+    setSelectedDeal(data);
+    setEditingDeal(null);
+  } catch (err) {
+    console.error(
+      'Edit deal error:',
+      err
+    );
+
+    setError(
+      err.message ||
+      'Unable to update deal'
+    );
+  }
+};
   /* =====================================================
      INITIAL LOAD
   ===================================================== */
@@ -668,13 +913,19 @@ console.log('[DEALS API]', {
     return (
       <section className="dashboard deals-page">
         <div className="system-card">
-          <span className="eyebrow">
-            CRM
-          </span>
+      <span className="eyebrow">
+  {isClient ? 'CUSTOMER PORTAL' : 'SALES PIPELINE'}
+</span>
 
-          <h2>
-            Loading Deals...
-          </h2>
+<h2>
+  {isClient ? 'My Projects' : 'Deals'}
+</h2>
+
+<p>
+  {isClient
+    ? 'View the projects and opportunities associated with your company.'
+    : 'Track every sales opportunity through its current stage.'}
+</p>
 
           <p>
             Retrieving deals, companies,
@@ -713,14 +964,16 @@ console.log('[DEALS API]', {
 
         <div className="deals-header-actions">
 
-          <button
-            className="primary-button"
-            onClick={() =>
-              setShowCreateDeal(true)
-            }
-          >
-            + Create Deal
-          </button>
+          {!isClient && (
+  <button
+    className="primary-button"
+    onClick={() =>
+      setShowCreateDeal(true)
+    }
+  >
+    + Create Deal
+  </button>
+)}
 
           <button
             className="secondary-button"
@@ -854,21 +1107,21 @@ console.log('[DEALS API]', {
             All amounts
           </option>
 
-          <option value="under100k">
-            Under ₹100K
-          </option>
+         <option value="under100k">
+  Under ¥100K
+</option>
 
-          <option value="100k500k">
-            ₹100K – ₹500K
-          </option>
+<option value="100k500k">
+  ¥100K – ¥500K
+</option>
 
-          <option value="500k1m">
-            ₹500K – ₹1M
-          </option>
+<option value="500k1m">
+  ¥500K – ¥1M
+</option>
 
-          <option value="over1m">
-            Over ₹1M
-          </option>
+<option value="over1m">
+  Over ¥1M
+</option>
         </select>
 
         {(dealSearch ||
@@ -1012,18 +1265,23 @@ console.log('[DEALS API]', {
 
           return (
             <div
-              className="pipeline-column"
-              key={stage.id}
-              onDragOver={
-                handleDragOver
-              }
-              onDrop={(event) =>
-                handleDrop(
-                  event,
-                  stage
-                )
-              }
-            >
+  className="pipeline-column"
+  key={stage.id}
+  onDragOver={
+    !isClient
+      ? handleDragOver
+      : undefined
+  }
+  onDrop={
+    !isClient
+      ? (event) =>
+          handleDrop(
+            event,
+            stage
+          )
+      : undefined
+  }
+>
 
               {/* COLUMN HEADER */}
 
@@ -1064,16 +1322,19 @@ console.log('[DEALS API]', {
 
                 {stageDeals.map(
                   (deal) => (
-                    <DealCard
-                      key={deal.id}
-                      deal={deal}
-                      onDragStart={
-                        handleDragStart
-                      }
-                      onClick={
-                        setSelectedDeal
-                      }
-                    />
+                   <DealCard
+  key={deal.id}
+  deal={deal}
+  onDragStart={handleDragStart}
+  onClick={setSelectedDeal}
+  isClient={isClient}
+  actionMenuDealId={actionMenuDealId}
+  setActionMenuDealId={
+    setActionMenuDealId
+  }
+  onEdit={handleStartEditDeal}
+  onDelete={handleDeleteDeal}
+/>
                   )
                 )}
                 {stageDeals.length === 0 && (
@@ -1091,6 +1352,171 @@ console.log('[DEALS API]', {
       </div>
 
       {/* DEAL DETAILS */}
+      {/* EDIT DEAL */}
+
+{editingDeal && (
+  <div
+    className="modal-overlay"
+    onClick={() =>
+      setEditingDeal(null)
+    }
+  >
+    <div
+      className="deal-detail-modal"
+      onClick={(event) =>
+        event.stopPropagation()
+      }
+    >
+      <div className="modal-header">
+        <div>
+          <span className="eyebrow">
+            EDIT DEAL
+          </span>
+
+          <h2>
+            {getDealName(editingDeal)}
+          </h2>
+        </div>
+
+        <button
+          className="modal-close"
+          onClick={() =>
+            setEditingDeal(null)
+          }
+        >
+          ×
+        </button>
+      </div>
+
+      <div className="deal-edit-form">
+
+        <label>
+          Deal Name
+
+          <input
+            type="text"
+            value={editForm.title}
+            onChange={(event) =>
+              setEditForm({
+                ...editForm,
+                title:
+                  event.target.value,
+              })
+            }
+          />
+        </label>
+
+        <label>
+          Amount
+
+          <input
+            type="number"
+            value={editForm.amount}
+            onChange={(event) =>
+              setEditForm({
+                ...editForm,
+                amount:
+                  event.target.value,
+              })
+            }
+          />
+        </label>
+
+        <label>
+          Stage
+
+          <select
+            value={editForm.stageId}
+            onChange={(event) =>
+              setEditForm({
+                ...editForm,
+                stageId:
+                  event.target.value,
+              })
+            }
+          >
+            {stages.map((stage) => (
+              <option
+                key={stage.id}
+                value={stage.id}
+              >
+                {stage.name}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label>
+          Status
+
+          <select
+            value={editForm.status}
+            onChange={(event) =>
+              setEditForm({
+                ...editForm,
+                status:
+                  event.target.value,
+              })
+            }
+          >
+            <option value="ACTIVE">
+              Active
+            </option>
+
+            <option value="WON">
+              Won
+            </option>
+
+            <option value="LOST">
+              Lost
+            </option>
+
+            <option value="CANCELLED">
+              Cancelled
+            </option>
+          </select>
+        </label>
+
+        <label>
+          Description
+
+          <textarea
+            rows="4"
+            value={editForm.description}
+            onChange={(event) =>
+              setEditForm({
+                ...editForm,
+                description:
+                  event.target.value,
+              })
+            }
+          />
+        </label>
+
+      </div>
+
+      <div className="modal-footer">
+        <button
+          type="button"
+          className="secondary-button"
+          onClick={() =>
+            setEditingDeal(null)
+          }
+        >
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          className="primary-button"
+          onClick={handleSaveEditDeal}
+        >
+          Save Changes
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       {selectedDeal && (
         <div

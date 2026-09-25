@@ -502,3 +502,98 @@
   font-size: 13px;
   line-height: 1.5;
 }
+.deal-action-wrapper {
+  position: relative;
+}
+
+.deal-menu-button {
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.65);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 4px 6px;
+  border-radius: 6px;
+}
+
+.deal-menu-button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.deal-action-menu {
+  position: absolute;
+  top: 28px;
+  right: 0;
+  z-index: 50;
+  min-width: 150px;
+  padding: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background: #17191d;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+.deal-action-menu button {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  text-align: left;
+  padding: 9px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.deal-action-menu button:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.deal-action-menu .danger-action {
+  color: #ff7070;
+}
+
+.deal-edit-form {
+  display: grid;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.deal-edit-form label {
+  display: grid;
+  gap: 7px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 13px;
+}
+
+.deal-edit-form input,
+.deal-edit-form select,
+.deal-edit-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.045);
+  color: #fff;
+  padding: 11px 12px;
+  outline: none;
+}
+
+.deal-edit-form textarea {
+  resize: vertical;
+}
+
+.deal-edit-form input:focus,
+.deal-edit-form select:focus,
+.deal-edit-form textarea:focus {
+  border-color: rgba(214, 155, 60, 0.55);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
